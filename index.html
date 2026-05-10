@@ -330,12 +330,14 @@
                 playerStats.forEach(p => {
                     const s = res[p.name];
                     if (s) {
-                        s.income += p.income;
                         const rate = parseFloat(h.rate) || 0;
                         const chipRate = parseFloat(h.chipRate) || 0;
+                        // 場代を含まない収支（スコア × レート + チップ枚数 × チップレート）
+                        const incomeNoFee = (p.scoreTotal * rate) + (parseFloat(p.chip || 0) * chipRate);
+                        s.income += incomeNoFee;
                         const scoreWithChipVal = p.scoreTotal + getChipPoints(p.chip, rate, chipRate);
                         s.scoreWithChip += scoreWithChipVal;
-                        s.history.push({ date: hDate, income: p.income, scoreWithChip: scoreWithChipVal });
+                        s.history.push({ date: hDate, income: incomeNoFee, scoreWithChip: scoreWithChipVal });
                     }
                 });
             });
@@ -432,8 +434,8 @@
                 <header className="p-4 bg-white border-b border-slate-100 flex justify-between items-center sticky top-0 z-40">
                     <div className="flex items-center gap-3">
                         {(viewingRecordIndex !== null || (activeTab !== 'welcome' && activeTab !== 'input')) && (
-                            <button onClick={handleBack} className="p-2 -ml-2 text-slate-400 hover:text-slate-900 transition-colors">
-                                <Icon name="ArrowLeft" />
+                            <button onClick={handleBack} className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black text-xs px-3 py-2 rounded-full transition-all shadow-sm border border-slate-200">
+                                <Icon name="ArrowLeft" className="w-4 h-4" /><span>戻る</span>
                             </button>
                         )}
                         <div className="flex items-center gap-2">
@@ -560,8 +562,8 @@
                                 </div>
                             </div>
                             <div className="flex bg-slate-100 p-1 rounded-2xl text-[10px] font-black gap-1">
-                                {[{id:'income', l:'累積収支'}, {id:'scoreWithChip', l:'累積スコア(チップ込)'}].map(t => (
-                                    <button key={t.id} onClick={() => setStatType(t.id)} className={`flex-1 py-2 rounded-xl transition-all ${statType === t.id ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>{t.l}</button>
+                                {[{id:'income', icon:'TrendingUp', l:'累積収支'}, {id:'scoreWithChip', icon:'Star', l:'累積スコア(チップ込)'}].map(t => (
+                                    <button key={t.id} onClick={() => setStatType(t.id)} className={`flex-1 py-2 rounded-xl transition-all flex items-center justify-center gap-1 ${statType === t.id ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}><Icon name={t.icon} className="w-3 h-3" />{t.l}</button>
                                 ))}
                             </div>
                             <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm h-64 relative"><canvas ref={chartRef}></canvas></div>
